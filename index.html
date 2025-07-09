@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <!-- Global Site Tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72240498-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-72240498-1');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Pages Example</title>
+  <!-- main.css -->
+  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="assets/css/code.css" rel="stylesheet">
+  <body>
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+      <div id="main">
+        <!-- Header -->
+        <section id="header">
+          <header>
+            <h1>GitHub Pages Example</h1>
+          </header>
+        </section>
+      </div>
+    </div>
+<h1 id="introduction">Introduction</h1>
+<p>This page provides some basic information about using your GitHub account to create static websites with GitHub Pages. Using GitHub pages is great because anything you can create with static HTML, CSS, and JavaScript can easily be made available to others on the web. </p>
+<p>Take this for what is it: an example illustrating just one of a myriad of ways to accomplish the goal of getting your work online. I made decisions about what technologies and services to use motivated by a desire to control my content and take advantage of free services, but you can find many easier<sup class="footnote-ref&#8221; id="fnref-easier"><a href="#fn-easier">1</a></sup>—or just different—solutions to meet your preferences.</p>
+<p>This page is written in <a target="_blank" href="https://daringfireball.net/projects/markdown/">Markdown</a>, converted to HTML with <a target="_blank" href="https://github.com/trentm/python-markdown2">Markdown2</a>, generated with <a target="_blank" href="https://www.python.org/">Python</a>, and hosted on <a target="_blank" href="https://pages.github.com/">GitHub pages</a>. The source code is available here: <a target="_blank" href="https://github.com/mkudija/GitHub-Pages-Example">https://github.com/mkudija/GitHub-Pages-Example</a></p>
+<h1 id="1-set-up-github-pages">1. Set Up GitHub Pages</h1>
+<p>The first step is to set up a GitHub repository to host the files for your website. You can create your GitHub account <a target="_blank" href="https://github.com/join">https://github.com/join</a>. </p>
+<p>Any repository can be the source for GitHub Pages. First create a new repository:</p>
+<p><center><img src="images/gh-pages-1.png"></center></p>
+<p>Next we can configure GitHub Pages. The <a target="_blank" href="https://pages.github.com/">GitHub Pages welcome page</a> has simple instructions, or follow along below. You can choose the location of the source files to be either the root of the master branch, or the docs folder in the master branch. I usually just choose the root of the master branch:</p>
+<p><center><img src="images/gh-pages-2.png"></center></p>
+<p>If set up properly you will be provided the link for your page:</p>
+<p><center><img src="images/gh-pages-3.png"></center></p>
+<p>Since we have not yet committed any source files for our webpage to the master branch, nothing is shown. The next steps will walk through building the website.</p>
+<p><center><img src="images/gh-pages-4.png"></center></p>
+<h1 id="2-build-the-website">2. Build the Website</h1>
+<p>If you are comfortable doing so yourself you can jump right in and write the HTML, CSS, and JavaScript (if necessary) files to run your site. These details are beyond the scope of this overview but there are plenty of resources online.</p>
+<p>If not, you&#8217;re still in luck. Just use one of the many free templates to be found online and add your content and any stylistic tweaks you want to make. <a target="_blank" href="https://html5up.net/">HTML5UP</a> has a number free, excellent, responsive templates available licensed under the Creative Commons Attribution 3.0 License. There are also multiple <a target="_blank" href="https://www.fullstackpython.com/static-site-generator.html">Python-powered static site generators</a> (<a target="_blank" href="https://blog.getpelican.com/">Pelican</a>, <a target="_blank" href="http://hyde.github.io/">Hyde</a>, etc.) that have pre-built themes available for use or customization.</p>
+<p>Styling the site can be a black hole of tinkering, but some easier items to update include colors and typeface.</p>
+<div class="info box"><strong>Info!</strong> A rookie mistake I made and that you can avoid is thinking that you need to commit your changes to GitHub each time to see how they look. Simply open the file locally (right click on <code>index.html</code> and open in Chrome) and as soon as changes are saved you can refresh the page to view the result. In Safari you can go to <strong>Develop</strong> > <strong>Enter Responsive Design Mode</strong> to see how your website will render on various screen sizes.</div>
+<div class="info box"><strong>Info!</strong> If you see something online you like and want to incorporate into your website, from Chrome right click and select <strong>Inspect</strong> to reveal the source code. This is a great way to learn about how other websites are built.</div>
+<h1 id="3-add-extras">3. Add Extras</h1>
+<p>Now that you are up and running with a basic static website, here are some optional &#8220;extras&#8221; you may want to add.</p>
+<h2 id="404html">404.html</h2>
+<p>The default 404 page on GitHub pages is pretty boring and not specific to your site. If you would like a 404 page to match your theme, you can add a custom <a target="_blank" href="https://github.com/mkudija/mkudija.github.io/blob/master/404.html">404.html</a> to your root directory.</p>
+<h2 id="cname">CNAME</h2>
+<p>If you want a custom domain (i.e. <code>matthewkudija.com</code> instead of <code>mkudija.github.io</code>), perform the following:</p>
+<ol>
+<li>Buy the domain from your preferred DNS provider. I use Host Gator.</li>
+<li>Add a <a target="_blank" href="CNAME">CNAME</a> file to your directory. This should contain just the domain: <code>matthewkudija.com</code>. </li>
+<li>Contact your DNS provider to point to GitHub pages. Refer to the <a target="_blank" href="https://help.github.com/articles/setting-up-an-apex-domain/">documentation</a>.</li>
+</ol>
+<h2 id="faviconico">favicon.ico</h2>
+<p>The favicon is the small image displayed on the tab in your web browser. You can create or find a square image to use as your favicon. Go to one of the many favicon generator sites (such as <a target="_blank" href="https://realfavicongenerator.net/">this</a>) to generate your favicon and upload this to the root directory of your website named <code>favicon.ico</code>.</p>
+<h2 id="sitemapxml">sitemap.xml</h2>
+<p>You can add a sitemap to aid in searching (and perhaps eventually get sitelinks on the search result) from <a target="_blank" href="https://www.xml-sitemaps.com">xml-sitemaps.com</a>. This also gets uploaded to the root directory of your webiste.</p>
+<h2 id="meta-tags">Meta tags</h2>
+<p>To improve search results, you can update the meta tags. See more information about <a target="_blank" href="https://support.google.com/webmasters/answer/79812?hl=en">meta tags that Google understands</a>. Two examples include <code>"description"</code> and <code>"keywords"</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;description&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;add a description of your site here&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;keywords&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;add, some, keywords, you, want, here&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h2 id="google-analytics">Google Analytics</h2>
+<p>To analyze traffice to your website, set up <a target="_blank" href="https://analytics.google.com/analytics/web/">Google Analytics</a> to get your unique tracking ID and then copy the required code in to your HTML pages.</p>
+<div class="codehilite"><pre><span></span><code>  <span class="c">&lt;!-- Global Site Tag (gtag.js) - Google Analytics --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">async</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://www.googletagmanager.com/gtag/js?id=UA-&lt;YOUR ID&gt;&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">dataLayer</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">dataLayer</span> <span class="o">||</span> <span class="p">[];</span>
+<span class="kd">function</span> <span class="nx">gtag</span><span class="p">(){</span><span class="nx">dataLayer</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);}</span>
+<span class="nx">gtag</span><span class="p">(</span><span class="s1">&#39;js&#39;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">());</span>
+<span class="nx">gtag</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;UA-&lt;YOUR ID&gt;&#39;</span><span class="p">);</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+<h1 id="4-auto-build-your-site">4. Auto Build Your Site</h1>
+<p>If you site is truly static is may be reasonable to write it all in HTML and let it be. Likely, you will have dynamic content (images, dates, articles, tables, charts) to be updated frequently. In this case, some simple Python scripts can handle the rote data aggregation, chart generation, and assembly of the final HTML page(s). </p>
+<p>This page is generated from <a target="_blank" href="scripts/build.py">build.py</a> which draws from a <a target="_blank" href="scripts/_template.html">template.html</a> file, inserts the body of text from a <a target="_blank" href="scripts/body.md">body.md</a> file, reads data from an <a target="_blank" href="example-data.xlsx">Excel</a> file to populate a table, and updates the date in the footer.</p>
+<p>For example, we can write a simple function to copy a file from one location to another and use it to copy the <code>template.html</code> to the live <code>index.html</code>. Likewise, another function can be used to insert live HTML snippets into this template. Combining a few simple functions like this we can update a website of moderate complexity with little to no marginal effort.</p>
+<p>As one example of this, we can read an Excel file into a Pandas DataFrame, drop that into an HTML table, and use some JavaScript to make the table filterable on the page (this data comes from the Wikipedia page for the <a target="_blank" href="https://en.wikipedia.org/wiki/List_of_Solar_System_objects_by_size">List of Solar System objects by size</a>): </p>
+<table border="1" class="dataframe" id="demo">
+<thead>
+<tr style="text-align: right;">
+<th>Body</th>
+<th>Radius (R⊕)</th>
+<th>Volume (V⊕)</th>
+<th>Mass (M⊕)</th>
+<th>Density (g/cm3)</th>
+<th>Gravity (⊕)</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sun</td>
+<td>109.3000</td>
+<td>1305700.000</td>
+<td>333000.000</td>
+<td>1.4080</td>
+<td>27.940</td>
+<td>star</td>
+</tr>
+<tr>
+<td>Jupiter</td>
+<td>10.9700</td>
+<td>1321.000</td>
+<td>317.830</td>
+<td>1.3260</td>
+<td>2.528</td>
+<td>planet (gas giant); has rings</td>
+</tr>
+<tr>
+<td>Saturn</td>
+<td>9.1400</td>
+<td>764.000</td>
+<td>95.162</td>
+<td>0.6870</td>
+<td>1.065</td>
+<td>planet (gas giant); has rings</td>
+</tr>
+<tr>
+<td>Uranus</td>
+<td>3.9810</td>
+<td>63.100</td>
+<td>14.536</td>
+<td>1.2700</td>
+<td>0.900</td>
+<td>planet (ice giant); has rings</td>
+</tr>
+<tr>
+<td>Neptune</td>
+<td>3.8650</td>
+<td>57.700</td>
+<td>17.147</td>
+<td>1.6380</td>
+<td>1.137</td>
+<td>planet (ice giant); has rings</td>
+</tr>
+<tr>
+<td>Earth</td>
+<td>1.0000</td>
+<td>1.000</td>
+<td>1.000</td>
+<td>5.5140</td>
+<td>1.000</td>
+<td>planet (terrestrial)</td>
+</tr>
+<tr>
+<td>Venus</td>
+<td>0.9499</td>
+<td>0.857</td>
+<td>0.815</td>
+<td>5.2430</td>
+<td>0.905</td>
+<td>planet (terrestrial)</td>
+</tr>
+<tr>
+<td>Mars</td>
+<td>0.5320</td>
+<td>0.151</td>
+<td>0.107</td>
+<td>3.9335</td>
+<td>0.380</td>
+<td>planet (terrestrial)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="conclusion">Conclusion</h1>
+<p>This is a brief overview and example of what you can build with GitHub pages. Feel free to submit a pull request with any additions or <A target="_blank" HREF="mailto:m.kudija@gmail.com">contact me</A> with questions, suggestions, or other examples.</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn-easier">
+<p>Yes, building a static website can be frustrating while you learn how to do so: Vicki Boykis, “Man, do static sites suck,” Vicki Boykis&#8217;s Blog, May 30, 2015, <a target="_blank" href="http://veekaybee.github.io/2015/05/30/static-sites-suck/">http://veekaybee.github.io/2015/05/30/static-sites-suck/</a>.&#160;<a href="#fnref-easier" class="footnoteBackLink" title="Jump back to footnote 1 in the text.">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    <!-- id="demo" -->
+    <!-- INSERT TABLE -->
+    <footer>
+      <p>
+        Updated <strong>2018-11-05</strong> <br>
+        &copy; 2005<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script> Matthew Kudija
+      </p>
+    </footer>
+  </body>
+</head>
+<script src="tablefilter/tablefilter.js"></script>
+<script data-config="">
+var filtersConfig = {
+base_path: 'tablefilter/',
+auto_filter: {
+delay: 110 //milliseconds
+},
+filters_row_index: 1,
+state: true,
+alternate_rows: true,
+rows_counter: true,
+btn_reset: true,
+status_bar: true,
+msg_filter: 'Filtering...'
+};
+var tf = new TableFilter('demo', filtersConfig);
+tf.init();
+</script>
