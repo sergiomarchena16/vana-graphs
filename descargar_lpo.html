@@ -7,14 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body, html {
             background-color: #F6F8FB;
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -23,14 +23,14 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 24px;
         }
-        
+
         button {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 700;
@@ -46,31 +46,31 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
         }
-        
+
         button:hover:not(:disabled) {
             background-color: #3d5fd6;
             color: white;
             box-shadow: 0 6px 20px rgba(79, 123, 255, 0.4);
             transform: translateY(-3px);
         }
-        
+
         button:active:not(:disabled) {
             transform: translateY(-1px);
             color: white;
         }
-        
+
         button:disabled {
             background-color: #4f7bff;
             color: white;
             cursor: not-allowed;
             opacity: 0.8;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+
         .spinner {
             display: inline-block;
             width: 14px;
@@ -82,18 +82,18 @@
             margin-right: 6px;
             vertical-align: middle;
         }
-        
+
         .status-message {
             font-size: 12px;
             color: #666;
             text-align: center;
             min-height: 20px;
         }
-        
+
         .status-message.success {
             color: #22c55e;
         }
-        
+
         .status-message.error {
             color: #ef4444;
         }
@@ -109,159 +109,248 @@
 
     <script>
         const MAGE_WEBHOOK_URL = "https://cluster.mage.ai/mageai-9480-development/api/pipeline_schedules/262/pipeline_runs/88e8bee3ff24488cb80734cf6f269fb4";
-        
+
         let isLoading = false;
-        
+        let pollInterval = null;
+
+        function getMageRunStatusUrl(runId) {
+            return `https://cluster.mage.ai/mageai-9480-development/api/pipeline_runs/${runId}`;
+        }
+
         async function handleClick() {
-    if (isLoading) return;
-    
-    const btn = document.getElementById('download-btn');
-    const btnText = document.getElementById('button-text');
-    const statusMsg = document.getElementById('status-message');
-    
-    isLoading = true;
-    btn.disabled = true;
-    btnText.innerHTML = '<span class="spinner"></span>Procesando...';
-    statusMsg.textContent = 'Esto puede tardar 3-4 minutos. No cierres esta página.';
-    
-    try {
-        const payload = {
-            pipeline_run: {
-                variables: {}
-            }
-        };
-        
-        console.log('📤 Enviando request a:', MAGE_WEBHOOK_URL);
-        console.log('📤 Payload:', payload);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000);
-        
-        const response = await fetch(MAGE_WEBHOOK_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        console.log('📥 Response status:', response.status);
-        console.log('📥 Response headers:', response.headers);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        console.log('📥 Response completa:', result);
-        console.log('📥 Type de result:', typeof result);
-        console.log('📥 Keys en result:', Object.keys(result || {}));
-        
-        // Debug: mostrar la estructura
-        if (result) {
-            console.log('📥 result.files:', result.files);
-            console.log('📥 Type de files:', typeof result.files);
-            if (result.files) {
-                console.log('📥 Keys en files:', Object.keys(result.files));
-            }
-        }
-        
-        // Validación mejorada
-        if (!result) {
-            throw new Error('Respuesta vacía del servidor');
-        }
-        
-        if (!result.files) {
-            console.warn('⚠️ result.files no existe. Result completo:', result);
-            throw new Error('No hay archivos en la respuesta');
-        }
-        
-        const filesArray = Object.entries(result.files);
-        console.log('📥 Archivos encontrados:', filesArray.length);
-        
-        if (filesArray.length === 0) {
-            throw new Error('El servidor no devolvió ningún archivo');
-        }
-        
-        // Descargar cada archivo
-        let downloadCount = 0;
-        for (const [filename, base64Data] of filesArray) {
+            if (isLoading) return;
+
+            const btn = document.getElementById('download-btn');
+            const btnText = document.getElementById('button-text');
+            const statusMsg = document.getElementById('status-message');
+
+            isLoading = true;
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Procesando...';
+            statusMsg.textContent = 'Iniciando... esto puede tardar 3-4 minutos.';
+
             try {
-                console.log(`⬇️ Descargando: ${filename}`);
-                downloadFile(filename, base64Data);
-                downloadCount++;
-                console.log(`✓ Descargado: ${filename}`);
-            } catch (err) {
-                console.error(`❌ Error downloading ${filename}:`, err);
+                const payload = {
+                    pipeline_run: {
+                        variables: {}
+                    }
+                };
+
+                console.log('📤 Enviando request a:', MAGE_WEBHOOK_URL);
+                console.log('📤 Payload:', payload);
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000);
+
+                // Trigger inicial (devuelve run ID)
+                const response = await fetch(MAGE_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                console.log('📥 Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                console.log('📥 Response completa:', result);
+                console.log('📥 Keys en result:', Object.keys(result || {}));
+
+                const runId = result.pipeline_run_id;
+
+                console.log('✓ Pipeline triggerizado. Run ID:', runId);
+                statusMsg.textContent = `Ejecutando... (ID: ${runId})`;
+
+                // Empezar a hacer polling
+                await pollForCompletion(runId, statusMsg, btn, btnText);
+
+            } catch (error) {
+                console.error('❌ Error en trigger:', error);
+                console.error('❌ Error message:', error.message);
+                handleError(error, btn, btnText, statusMsg);
             }
         }
-        
-        console.log('✓ Todas las descargas completadas');
-        
-        // Mostrar éxito
-        btnText.textContent = '¡Descargados!';
-        statusMsg.textContent = `✓ ${downloadCount} archivo(s) descargado(s) correctamente`;
-        statusMsg.classList.add('success');
-        
-        setTimeout(() => {
-            isLoading = false;
-            btn.disabled = false;
-            btnText.textContent = 'Descargar LPO';
-            statusMsg.textContent = '';
-            statusMsg.classList.remove('success', 'error');
-        }, 2000);
-        
-    } catch (error) {
-        console.error('❌ Error completo:', error);
-        console.error('❌ Error message:', error.message);
-        console.error('❌ Error stack:', error.stack);
-        
-        let errorMsg = 'Intenta de nuevo';
-        if (error.name === 'AbortError') {
-            errorMsg = 'Timeout: la solicitud tardó demasiado';
-        } else if (error.message) {
-            errorMsg = error.message;
-        }
-        
-        btnText.textContent = 'Error al descargar';
-        statusMsg.textContent = errorMsg;
-        statusMsg.classList.add('error');
-        
-        setTimeout(() => {
-            isLoading = false;
-            btn.disabled = false;
-            btnText.textContent = 'Descargar LPO';
-            statusMsg.textContent = '';
-            statusMsg.classList.remove('success', 'error');
-        }, 3000);
-    }
-}
-        
-        function downloadFile(filename, base64Data) {
-            // Decodificar base64 a binary
-            const binaryString = atob(base64Data);
-            const bytes = new Uint8Array(binaryString.length);
-            
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            
-            // Crear blob y descargar
-            const blob = new Blob([bytes], {
-                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+        async function pollForCompletion(runId, statusMsg, btn, btnText) {
+            const statusUrl = getMageRunStatusUrl(runId);
+
+            let pollCount = 0;
+            const maxPolls = 120; // 120 * 5s = 10 minutos máximo
+
+            return new Promise((resolve, reject) => {
+                pollInterval = setInterval(async () => {
+                    pollCount++;
+
+                    try {
+                        console.log(`⏱️ Poll #${pollCount} → GET ${statusUrl}`);
+
+                        const response = await fetch(statusUrl);
+
+                        console.log(`📥 Poll #${pollCount} status HTTP:`, response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status} fetching run status`);
+                        }
+
+                        const runData = await response.json();
+
+                        console.log(`📥 Poll #${pollCount} run_data:`, runData);
+
+                        const status = runData.pipeline_run.status;
+
+                        console.log(`📊 Poll #${pollCount} status: "${status}"`);
+
+                        if (status === 'failed') {
+                            clearInterval(pollInterval);
+                            console.error('❌ Pipeline falló');
+                            throw new Error('El pipeline falló. Verifica los logs en Mage.');
+                        }
+
+                        if (status === 'completed') {
+                            console.log('✓ Pipeline completado en poll #' + pollCount);
+                            statusMsg.textContent = 'Pipeline completado, extrayendo archivos...';
+
+                            // Los archivos están en las variables del run
+                            const variables = runData.pipeline_run.variables;
+                            console.log('📥 Variables del run:', variables);
+                            console.log('📥 Keys en variables:', Object.keys(variables || {}));
+
+                            // Buscar los archivos
+                            let files = null;
+
+                            // Opción 1: Si el exporter guardó en una variable 'files'
+                            if (variables && variables.files) {
+                                files = variables.files;
+                                console.log('✓ Archivos encontrados en variables.files');
+                                console.log('📥 Tipo de files:', typeof files);
+                                console.log('📥 Keys en files:', Object.keys(files || {}));
+                            }
+                            else {
+                                console.warn('⚠️ No se encontraron archivos en variables.files');
+                                console.log('📥 Variables disponibles:', Object.keys(variables || {}));
+                                throw new Error('No se encontraron archivos en la respuesta');
+                            }
+
+                            if (!files || Object.keys(files).length === 0) {
+                                throw new Error('Los archivos están vacíos');
+                            }
+
+                            clearInterval(pollInterval);
+
+                            // Descargar
+                            let downloadCount = 0;
+                            const filesArray = Object.entries(files);
+                            console.log(`⬇️ Descargando ${filesArray.length} archivo(s)...`);
+
+                            for (const [filename, base64Data] of filesArray) {
+                                try {
+                                    console.log(`⬇️ Descargando: ${filename}`);
+                                    downloadFile(filename, base64Data);
+                                    downloadCount++;
+                                    console.log(`✓ Descargado: ${filename}`);
+                                } catch (err) {
+                                    console.error(`❌ Error downloading ${filename}:`, err);
+                                }
+                            }
+
+                            console.log('✓ Todas las descargas completadas');
+
+                            btnText.textContent = '¡Descargados!';
+                            statusMsg.textContent = `✓ ${downloadCount} archivo(s) descargado(s)`;
+                            statusMsg.classList.add('success');
+
+                            setTimeout(() => {
+                                isLoading = false;
+                                btn.disabled = false;
+                                btnText.textContent = 'Descargar LPO';
+                                statusMsg.textContent = '';
+                                statusMsg.classList.remove('success', 'error');
+                            }, 2000);
+
+                            resolve();
+                            return;
+                        }
+
+                        if (pollCount >= maxPolls) {
+                            clearInterval(pollInterval);
+                            console.error('❌ Max polls alcanzado');
+                            throw new Error('Timeout: el pipeline tardó demasiado (máx 10 min)');
+                        }
+
+                    } catch (error) {
+                        clearInterval(pollInterval);
+                        console.error('❌ Error en poll #' + pollCount + ':', error);
+                        console.error('❌ Error message:', error.message);
+                        reject(error);
+                    }
+                }, 5000); // Preguntar cada 5 segundos
             });
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
+        }
+
+        function downloadFile(filename, base64Data) {
+            try {
+                console.log(`🔄 Decodificando base64 para: ${filename}`);
+
+                const binaryString = atob(base64Data);
+                const bytes = new Uint8Array(binaryString.length);
+
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+
+                console.log(`📦 Creando blob: ${bytes.length} bytes`);
+
+                const blob = new Blob([bytes], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+
+                console.log(`✓ Link descargado para: ${filename}`);
+            } catch (err) {
+                console.error(`❌ Error en downloadFile para ${filename}:`, err);
+                throw err;
+            }
+        }
+
+        function handleError(error, btn, btnText, statusMsg) {
+            if (pollInterval) clearInterval(pollInterval);
+
+            let errorMsg = 'Intenta de nuevo';
+            if (error.name === 'AbortError') {
+                errorMsg = 'Timeout: la solicitud tardó demasiado';
+            } else if (error.message) {
+                errorMsg = error.message;
+            }
+
+            console.error('🔴 Error final:', errorMsg);
+
+            btnText.textContent = 'Error al descargar';
+            statusMsg.textContent = errorMsg;
+            statusMsg.classList.add('error');
+
+            setTimeout(() => {
+                isLoading = false;
+                btn.disabled = false;
+                btnText.textContent = 'Descargar LPO';
+                statusMsg.textContent = '';
+                statusMsg.classList.remove('success', 'error');
+            }, 3000);
         }
     </script>
 </body>
