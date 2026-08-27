@@ -113,83 +113,96 @@
         let isLoading = false;
         
         async function handleClick() {
-            if (isLoading) return;
-            
-            const btn = document.getElementById('download-btn');
-            const btnText = document.getElementById('button-text');
-            const statusMsg = document.getElementById('status-message');
-            
-            isLoading = true;
-            btn.disabled = true;
-            btnText.innerHTML = '<span class="spinner"></span>Procesando...';
-            statusMsg.textContent = '';
-            
-            try {
-                const payload = {
-                    pipeline_run: {
-                        variables: {}
+                if (isLoading) return;
+                
+                const btn = document.getElementById('download-btn');
+                const btnText = document.getElementById('button-text');
+                const statusMsg = document.getElementById('status-message');
+                
+                isLoading = true;
+                btn.disabled = true;
+                btnText.innerHTML = '<span class="spinner"></span>Procesando...';
+                statusMsg.textContent = 'Esto puede tardar 3-4 minutos. No cierres esta página.';
+                
+                try {
+                    const payload = {
+                        pipeline_run: {
+                            variables: {}
+                        }
+                    };
+                    
+                    const controller = new AbortController();
+                    // Timeout de 5 minutos (300000ms)
+                    const timeoutId = setTimeout(() => controller.abort(), 300000);
+                    
+                    const response = await fetch(MAGE_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
                     }
-                };
-                
-                const response = await fetch(MAGE_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                    timeout: 10000
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (!result.files || Object.keys(result.files).length === 0) {
-                    throw new Error('No files returned from server');
-                }
-                
-                // Descargar cada archivo
-                let downloadCount = 0;
-                for (const [filename, base64Data] of Object.entries(result.files)) {
-                    try {
-                        downloadFile(filename, base64Data);
-                        downloadCount++;
-                    } catch (err) {
-                        console.error(`Error downloading ${filename}:`, err);
+                    
+                    const result = await response.json();
+                    
+                    if (!result.files || Object.keys(result.files).length === 0) {
+                        throw new Error('No files returned from server');
                     }
+                    
+                    // Descargar cada archivo
+                    let downloadCount = 0;
+                    for (const [filename, base64Data] of Object.entries(result.files)) {
+                        try {
+                            downloadFile(filename, base64Data);
+                            downloadCount++;
+                        } catch (err) {
+                            console.error(`Error downloading ${filename}:`, err);
+                        }
+                    }
+                    
+                    // Mostrar éxito
+                    btnText.textContent = '¡Descargados!';
+                    statusMsg.textContent = `✓ ${downloadCount} archivo(s) descargado(s) correctamente`;
+                    statusMsg.classList.add('success');
+                    
+                    setTimeout(() => {
+                        isLoading = false;
+                        btn.disabled = false;
+                        btnText.textContent = 'Descargar LPO';
+                        statusMsg.textContent = '';
+                        statusMsg.classList.remove('success', 'error');
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    
+                    let errorMsg = 'Intenta de nuevo';
+                    if (error.name === 'AbortError') {
+                        errorMsg = 'Timeout: la solicitud tardó demasiado';
+                    } else if (error.message) {
+                        errorMsg = error.message;
+                    }
+                    
+                    btnText.textContent = 'Error al descargar';
+                    statusMsg.textContent = errorMsg;
+                    statusMsg.classList.add('error');
+                    
+                    setTimeout(() => {
+                        isLoading = false;
+                        btn.disabled = false;
+                        btnText.textContent = 'Descargar LPO';
+                        statusMsg.textContent = '';
+                        statusMsg.classList.remove('success', 'error');
+                    }, 3000);
                 }
-                
-                // Mostrar éxito
-                btnText.textContent = '¡Descargados!';
-                statusMsg.textContent = `${downloadCount} archivo(s) descargado(s)`;
-                statusMsg.classList.add('success');
-                
-                setTimeout(() => {
-                    isLoading = false;
-                    btn.disabled = false;
-                    btnText.textContent = 'Descargar LPO';
-                    statusMsg.textContent = '';
-                    statusMsg.classList.remove('success', 'error');
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error:', error);
-                
-                btnText.textContent = 'Error al descargar';
-                statusMsg.textContent = error.message || 'Intenta de nuevo';
-                statusMsg.classList.add('error');
-                
-                setTimeout(() => {
-                    isLoading = false;
-                    btn.disabled = false;
-                    btnText.textContent = 'Descargar LPO';
-                    statusMsg.textContent = '';
-                    statusMsg.classList.remove('success', 'error');
-                }, 3000);
             }
-        }
         
         function downloadFile(filename, base64Data) {
             // Decodificar base64 a binary
