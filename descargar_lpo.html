@@ -108,13 +108,15 @@
     </div>
 
     <script>
-        const MAGE_WEBHOOK_URL = "https://cluster.mage.ai/mageai-9480-development/api/pipeline_schedules/262/pipeline_runs/88e8bee3ff24488cb80734cf6f269fb4";
+        const MAGE_WEBHOOK_URL = "https://cluster.mage.ai/mageai-9480-development/api/pipeline_schedules/262/api_trigger";
+        const MAGE_API_TOKEN = "88e8bee3ff24488cb80734cf6f269fb4";
+        const MAGE_BASE_URL = "https://cluster.mage.ai/mageai-9480-development";
 
         let isLoading = false;
         let pollInterval = null;
 
         function getMageRunStatusUrl(runId) {
-            return `https://cluster.mage.ai/mageai-9480-development/api/pipeline_runs/${runId}`;
+            return `${MAGE_BASE_URL}/api/pipeline_runs/${runId}`;
         }
 
         async function handleClick() {
@@ -147,6 +149,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${MAGE_API_TOKEN}`
                     },
                     body: JSON.stringify(payload),
                     signal: controller.signal
@@ -193,7 +196,11 @@
                     try {
                         console.log(`⏱️ Poll #${pollCount} → GET ${statusUrl}`);
 
-                        const response = await fetch(statusUrl);
+                        const response = await fetch(statusUrl, {
+                            headers: {
+                                'Authorization': `Bearer ${MAGE_API_TOKEN}`
+                            }
+                        });
 
                         console.log(`📥 Poll #${pollCount} status HTTP:`, response.status);
 
